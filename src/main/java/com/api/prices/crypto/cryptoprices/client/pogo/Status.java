@@ -1,5 +1,7 @@
 package com.api.prices.crypto.cryptoprices.client.pogo;
 
+import java.sql.Timestamp;
+
 public class Status
 {
     private String error_message;
@@ -10,7 +12,7 @@ public class Status
 
     private String error_code;
 
-    private String timestamp;
+    private Timestamp timestamp;
 
     public String getError_message ()
 {
@@ -52,12 +54,12 @@ public class Status
         this.error_code = error_code;
     }
 
-    public String getTimestamp ()
+    public Timestamp getTimestamp ()
     {
         return timestamp;
     }
 
-    public void setTimestamp (String timestamp)
+    public void setTimestamp (Timestamp timestamp)
     {
         this.timestamp = timestamp;
     }

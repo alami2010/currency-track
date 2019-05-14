@@ -1,22 +1,24 @@
 package com.api.prices.crypto.cryptoprices.client.pogo;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Data
 {
-    private BTC BTC;
 
-    public BTC getBTC ()
-    {
-        return BTC;
+    @SerializedName("currency")
+    private Currency currency;
+
+    public Currency getCurrency() {
+        return currency;
     }
 
-    public void setBTC (BTC BTC)
-    {
-        this.BTC = BTC;
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     @Override
     public String toString()
     {
-        return "ClassPojo [BTC = "+BTC+"]";
+        return "ClassPojo [BTC = "+currency+"]";
     }
 }

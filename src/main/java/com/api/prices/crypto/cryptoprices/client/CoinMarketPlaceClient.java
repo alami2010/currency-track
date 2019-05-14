@@ -30,7 +30,7 @@ public class CoinMarketPlaceClient {
     public static void main(String[] args) {
         String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest";
         List<NameValuePair> paratmers = new ArrayList<NameValuePair>();
-        paratmers.add(new BasicNameValuePair("symbol","BTC"));
+        paratmers.add(new BasicNameValuePair("symbol","BTC,ETH"));
 
         try {
             String result = makeAPICall(uri, paratmers);
@@ -38,9 +38,12 @@ public class CoinMarketPlaceClient {
 
 
             Gson g = new Gson();
+            result = result.replaceFirst("BTC","currency");
             CurrencyInformation p = g.fromJson(result, CurrencyInformation.class);
+            System.out.println(p.getData().getCurrency().getQuote());
+            System.out.println(p.getData().getCurrency().getQuote().getUSD().getPrice());
 
-            System.out.println(p);
+            System.out.println(p.getData().getCurrency().getQuote());
         } catch (IOException e) {
             System.out.println("Error: cannont access content - " + e.toString());
         } catch (URISyntaxException e) {
