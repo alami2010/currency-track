@@ -1,5 +1,7 @@
 package com.api.prices.crypto.cryptoprices.utils;
 
+import org.springframework.stereotype.Service;
+
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -10,6 +12,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
+@Service
 public class SendMail {
 	
 	public static void sendMail(double price) {
@@ -25,7 +28,7 @@ public class SendMail {
                     new javax.mail.Authenticator() {
                          protected PasswordAuthentication getPasswordAuthentication() 
                          {
-                               return new PasswordAuthentication("vinicius.pereiradeoliveira@gmail.com", "***");
+                               return new PasswordAuthentication("youssef.dahar@gmail.com", "****");
                          }
                     });
         
@@ -33,10 +36,10 @@ public class SendMail {
         try {
 
               Message message = new MimeMessage(session);
-              message.setFrom(new InternetAddress("vinicius.pereiradeoliveira@gmail.com"));
+              message.setFrom(new InternetAddress("youssef.dahar@gmail.com"));
 
               Address[] toUser = InternetAddress 
-                         .parse("vinicius.pereiradeoliveira@gmail.com");  
+                         .parse("youssef.dahar@gmail.com");
               message.setRecipients(Message.RecipientType.TO, toUser);
               message.setSubject("Send email with new price");
               message.setText("New price is: $"+price);

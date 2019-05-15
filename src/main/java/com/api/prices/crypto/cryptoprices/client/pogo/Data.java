@@ -19,6 +19,6 @@ public class Data
     @Override
     public String toString()
     {
-        return "ClassPojo [BTC = "+currency+"]";
+        return "Data [currency = "+currency+"]";
     }
 }
