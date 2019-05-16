@@ -40,18 +40,8 @@ public class SchedulingTasks {
     public void reportPrice() {
 
 
-            logger.info("This is an info message");
-            logger.warn("This is a warn message");
-            logger.error("This is an error message");
-            logger.fatal("This is a fatal message");
-            logger.debug("This is a debug message");
-
-        List<Integer> num = Arrays.asList(1, 2, 3, 4, 5);
-        logger.info("Hello from Log4j 2 - num : ");
 
 
-
-        System.out.println("helowww");
         coinMarketPlaceClient.getOneCurrencyInfo("BTC");
 
         sendMail.sendMail(55.0);

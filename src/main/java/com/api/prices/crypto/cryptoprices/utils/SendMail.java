@@ -1,5 +1,6 @@
 package com.api.prices.crypto.cryptoprices.utils;
 
+import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Address;
@@ -15,7 +16,7 @@ import java.util.Properties;
 @Service
 public class SendMail {
 	
-	public static void sendMail(double price) {
+	public static void sendMail(double price, CurrencyToTrack currencyToTrack,) {
         Properties props = new Properties();
         
         props.put("mail.smtp.host", "smtp.gmail.com");
