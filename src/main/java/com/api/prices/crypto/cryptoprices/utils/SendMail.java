@@ -1,6 +1,7 @@
 package com.api.prices.crypto.cryptoprices.utils;
 
 import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
+import com.api.prices.crypto.cryptoprices.entity.Decision;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Address;
@@ -16,7 +17,7 @@ import java.util.Properties;
 @Service
 public class SendMail {
 	
-	public static void sendMail(double price, CurrencyToTrack currencyToTrack,) {
+	public static void sendMail(double price, CurrencyToTrack currencyToTrack, Decision decision) {
         Properties props = new Properties();
         
         props.put("mail.smtp.host", "smtp.gmail.com");
@@ -39,13 +40,15 @@ public class SendMail {
               Message message = new MimeMessage(session);
               message.setFrom(new InternetAddress("youssef.dahar@gmail.com"));
 
-              Address[] toUser = InternetAddress 
-                         .parse("youssef.dahar@gmail.com");
+              Address[] toUser = InternetAddress.parse("youssef.dahar@gmail.com,admi.mohamad@gmail.com");
               message.setRecipients(Message.RecipientType.TO, toUser);
-              message.setSubject("Send email with new price");
-              message.setText("New price is: $"+price);
-            
-              Transport.send(message);
+
+
+              String text = String.format("The price of  %1$  is %2$  your have to  %3$", currencyToTrack.toString(), String.valueOf(price),decision.toString());
+            message.setText(text);
+            message.setSubject(text);
+
+            Transport.send(message);
               System.out.println("Sending mail completed!!!");
          } catch (MessagingException e) {
               throw new RuntimeException(e);

@@ -4,6 +4,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.api.prices.crypto.cryptoprices.client.CoinMarketPlaceClient;
+import com.api.prices.crypto.cryptoprices.client.pogo.CurrencyInformation;
+import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
+import com.api.prices.crypto.cryptoprices.entity.Decision;
+import com.api.prices.crypto.cryptoprices.utils.SchedulingTasks;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,35 +25,52 @@ import com.api.prices.crypto.cryptoprices.v1.output.PricesCryptoOutput;
 public class PriceService {
 	
 	@Autowired
-	private PricesRestClient pricesRestClient;
-	
+	private CoinMarketPlaceClient pricesRestClient;
+	private static Logger logger = LogManager.getLogger(SchedulingTasks.class);
+
+
 	@Autowired
 	private PricesRepository pricesRepository;
 	
-	public ResponseEntity<PricesCryptoOutput[]> getInformation(String id) {
-		return pricesRestClient.getCryptoInformation(id);
-	}
-	
-	public String enableDisableAlert(String id, double alertPrice, boolean enableDisable) {
-		pricesRepository.enableDisableAlert(enableDisable);
-		if(enableDisable)
-			initMonitoringOfPrice(alertPrice, id);
-		return new EnableDisableAlertOutput(enableDisable, new Date()).toString();
+	public CurrencyInformation getInformation(String id) {
+		return pricesRestClient.getOneCurrencyInfo(id);
 	}
 
-	public String initMonitoringOfPrice(double alertPrice, String id) {
-		System.out.println("===> Monitoring price <==="+alertPrice+" "+id);
-		List<PricesCryptoOutput> info = Arrays.asList(pricesRestClient.getCryptoInformation(id).getBody());
-		info.forEach(item->{
-			if(Double.parseDouble(item.getPrice_usd()) > alertPrice) {
-				alertUser(Double.parseDouble(item.getPrice_usd()), id);
+
+	public void initMonitoringOfPrice() {
+		System.out.println("===> Monitoring price <===");
+
+		Arrays.stream(CurrencyToTrack.values()).forEach(currencyToTrack -> {
+
+			CurrencyInformation currencyInfo = pricesRestClient.getOneCurrencyInfo(currencyToTrack.toString());
+
+			if(currencyInfo != null && currencyInfo.getStatus().getError_code() != null){
+
+
+				String priceCurrency = currencyInfo.getData().getCurrency().getQuote().getUSD().getPrice();
+				if(Double.parseDouble(priceCurrency) >= currencyToTrack.getMax()) {
+					alertUser(Double.parseDouble(priceCurrency), currencyToTrack,Decision.SELL);
+				}
+				if(Double.parseDouble(priceCurrency) <= currencyToTrack.getMin()) {
+					alertUser(Double.parseDouble(priceCurrency), currencyToTrack,Decision.BUY);
+				}
+
+
+
+
 			}
+
+			logger.info(currencyInfo);
+			logger.info(currencyToTrack);
+
+
+
 		});
-		return info.toString();
+
 	}
 
-	private void alertUser(double alertPrice, String id) {
+	private void alertUser(double alertPrice, CurrencyToTrack id, Decision decision) {
 		System.out.println("New price of "+id+" is "+alertPrice);
-		SendMail.sendMail(alertPrice);
+		SendMail.sendMail(alertPrice,id, decision);
 	}
 }

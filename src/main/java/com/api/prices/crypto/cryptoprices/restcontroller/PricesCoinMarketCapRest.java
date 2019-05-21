@@ -20,7 +20,8 @@ public class PricesCoinMarketCapRest {
 	
 	@GetMapping(value="/{id}")
 	public ResponseEntity<?> getPrices(@PathVariable String id){
-		return ResponseEntity.ok(priceService.getInformation(id).getBody()); 
+		//return ResponseEntity.ok(priceService.getInformation(id).getBody());
+		return null;
 	}	
 	
 	@PostMapping(value="alert/{id}")
