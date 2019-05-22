@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,9 @@ public class CoinMarketPlaceClient {
 
 
             Gson g = new Gson();
+
+
+
             CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
 
 
