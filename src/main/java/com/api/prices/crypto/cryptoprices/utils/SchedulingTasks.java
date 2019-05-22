@@ -23,7 +23,7 @@ public class SchedulingTasks {
     private final long SEGUNDO = 1000;
     private final long MINUTE = SEGUNDO * 60;
     
-    @Scheduled(fixedRate = MINUTE *10)
+    @Scheduled(fixedRate = MINUTE *5)
     public void reportPrice() {
 
 

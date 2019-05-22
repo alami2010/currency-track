@@ -11,7 +11,7 @@ public class USD
 
     private String market_cap;
 
-    private String price;
+    private double price;
 
     private String volume_24h;
 
@@ -57,12 +57,12 @@ public class USD
         this.market_cap = market_cap;
     }
 
-    public String getPrice ()
+    public double getPrice ()
     {
         return price;
     }
 
-    public void setPrice (String price)
+    public void setPrice (double price)
     {
         this.price = price;
     }

@@ -14,7 +14,6 @@ private String total_supply;
 
 private String cmc_rank;
 
-private String platform;
 
 private String[]tags;
 
@@ -72,13 +71,7 @@ public void setCmc_rank(String cmc_rank){
         this.cmc_rank=cmc_rank;
         }
 
-public String getPlatform(){
-        return platform;
-        }
 
-public void setPlatform(String platform){
-        this.platform=platform;
-        }
 
 public String[]getTags(){
         return tags;
@@ -146,7 +139,7 @@ public void setSlug(String slug){
 
 @Override
 public String toString(){
-        return"ClassPojo [symbol = "+symbol+", circulating_supply = "+circulating_supply+", last_updated = "+last_updated+", total_supply = "+total_supply+", cmc_rank = "+cmc_rank+", platform = "+platform+", tags = "+tags+", date_added = "+date_added+", quote = "+quote+", num_market_pairs = "+num_market_pairs+", name = "+name+", max_supply = "+max_supply+", id = "+id+", slug = "+slug+"]";
+        return"Currency [symbol = "+symbol+", circulating_supply = "+circulating_supply+", last_updated = "+last_updated+", total_supply = "+total_supply+", cmc_rank = "+cmc_rank+", tags = "+tags+", date_added = "+date_added+", quote = "+quote+", num_market_pairs = "+num_market_pairs+", name = "+name+", max_supply = "+max_supply+", id = "+id+", slug = "+slug+"]";
         }
 
         }

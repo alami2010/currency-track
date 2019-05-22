@@ -1,7 +1,7 @@
 package com.api.prices.crypto.cryptoprices.client;
 
 
-import com.api.prices.crypto.cryptoprices.client.pogo.CurrencyInformation;
+import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformation;
 import com.google.gson.Gson;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,43 +29,37 @@ public class CoinMarketPlaceClient {
     private static final String apiKey = "a3c5ac9b-1b2d-470b-8a67-a5112f71a981";
     private static final Logger logger = LogManager.getLogger(CoinMarketPlaceClient.class);
 
-    public static void main(String[] args) {
 
+    public static CurrencyInformation getOneCurrenciesInfo(String currencies) {
 
-        //getOneCurrencyInfo("BTC");
-
-
-    }
-
-
-    public  CurrencyInformation getOneCurrencyInfo(String currency) {
-        List<Integer> num = Arrays.asList(1, 2, 3, 4, 5);
-        logger.info("Hello from Log4j 2 - num : xx");
+        logger.info("Symbol "+currencies);
 
         List<NameValuePair> paratmers = new ArrayList<>();
-        paratmers.add(new BasicNameValuePair("symbol", currency));
+        paratmers.add(new BasicNameValuePair("symbol", currencies));
 
         try {
             String result = makeAPICall(uri, paratmers);
-            // System.out.println(result);
+            System.out.println(result);
 
 
             Gson g = new Gson();
-            result = result.replaceFirst(currency, "currency");
             CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
 
 
-            System.out.println(currencyInformation);
             return currencyInformation;
         } catch (IOException e) {
-            System.out.println("Error: cannont access content - " + e.toString());
+            logger.error("Error: cannont access content - " + e.toString());
         } catch (URISyntaxException e) {
-            System.out.println("Error: Invalid URL " + e.toString());
+            logger.error("Error: Invalid URL " + e.toString());
         }
 
         return null;
 
     }
+
+
+
+
 
     public static String makeAPICall(String uri, List<NameValuePair> parameters)
             throws URISyntaxException, IOException {

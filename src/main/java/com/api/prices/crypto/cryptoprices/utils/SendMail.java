@@ -30,7 +30,7 @@ public class SendMail {
                     new javax.mail.Authenticator() {
                          protected PasswordAuthentication getPasswordAuthentication() 
                          {
-                               return new PasswordAuthentication("youssef.dahar@gmail.com", "****");
+                               return new PasswordAuthentication("youssef.dahar@gmail.com", "yDahar+1992");
                          }
                     });
         
@@ -44,7 +44,7 @@ public class SendMail {
               message.setRecipients(Message.RecipientType.TO, toUser);
 
 
-              String text = String.format("The price of  %1$  is %2$  your have to  %3$", currencyToTrack.toString(), String.valueOf(price),decision.toString());
+              String text = String.format("The price of  %1s  is %2s  your have to  %3s", currencyToTrack.toString(), String.valueOf(price),decision.toString());
             message.setText(text);
             message.setSubject(text);
 

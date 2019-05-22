@@ -25,3 +25,4 @@ dist/
 nbdist/
 .nb-gradle/
 *.class
+out/production/classes/META-INF/currency-track.main.kotlin_module

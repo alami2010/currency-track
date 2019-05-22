@@ -1,33 +1,30 @@
 package com.api.prices.crypto.cryptoprices.client.pojo;
 
+import java.util.Map;
+
 public class CurrencyInformation {
-    private Data data;
+    private Map<String, Currency> data;
 
     private Status status;
 
-    public Data getData ()
-    {
+    public Map<String, Currency> getData() {
         return data;
     }
 
-    public void setData (Data data)
-    {
+    public void setData(Map<String, Currency> data) {
         this.data = data;
     }
 
-    public Status getStatus ()
-    {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus (Status status)
-    {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
     @Override
-    public String toString()
-    {
-        return "ClassPojo [data = "+data+", status = "+status+"]";
+    public String toString() {
+        return " CurrencyInformation [data = " + data + ", status = " + status + "]";
     }
 }

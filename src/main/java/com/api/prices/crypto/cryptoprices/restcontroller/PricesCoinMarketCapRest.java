@@ -26,6 +26,7 @@ public class PricesCoinMarketCapRest {
 	
 	@PostMapping(value="alert/{id}")
 	public ResponseEntity<?> enableAlertPrices(@PathVariable String id, @RequestParam Double valueAlert, @RequestParam Boolean enableDisable){
-		return ResponseEntity.ok(priceService.enableDisableAlert(id, 20.00, enableDisable)); 
+		//return ResponseEntity.ok(priceService.enableDisableAlert(id, 20.00, enableDisable));
+		return null;
 	}
 }
