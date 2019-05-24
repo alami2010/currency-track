@@ -14,13 +14,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,13 +41,16 @@ public class PriceService {
     }
 
 
+    List<CurrencyToTrack> currencyToTracks = null;
+
+
     public void initMonitoringOfPrice() {
         System.out.println(" ===> Monitoring price <=== ");
 
-        final List<CurrencyToTrack> currencyToTracks = getCurrenciesToTracks();
+        chargerCurrencyToTrack();
 
 
-        String currencies = currencyToTracks.stream().map(currencyToTrack -> currencyToTrack.getName()).collect(Collectors.joining(","));
+        String currencies = currencyToTracks.stream().map(currencyToTrack -> currencyToTrack.getName()).sorted().collect(Collectors.joining(","));
 
         CurrencyInformation currencyInfo = CoinMarketPlaceClient.getOneCurrenciesInfo(currencies);
 
@@ -58,11 +61,12 @@ public class PriceService {
             currencyInfo.getData().entrySet().stream().forEach(currency -> {
 
 
-
-                CurrencyToTrack currencyToTrack = getCurrencyToTrackByKey(currencyToTracks,currency.getKey());
+                CurrencyToTrack currencyToTrack = getCurrencyToTrackByKey(currencyToTracks, currency.getKey());
 
                 double priceCurrency = currency.getValue().getQuote().getUSD().getPrice();
-                logger.info(currencyToTrack.toString() +" "+  priceCurrency);
+                String slug = currency.getValue().getSlug();
+
+                logger.info(currencyToTrack.toString() + " " + priceCurrency + " \t" + StringUtils.capitalize(slug));
 
                 checkPrice(currencyToTrack, priceCurrency, priceCurrency >= currencyToTrack.getMax(), Decision.SELL);
                 checkPrice(currencyToTrack, priceCurrency, priceCurrency <= currencyToTrack.getMin(), Decision.BUY);
@@ -74,6 +78,10 @@ public class PriceService {
 
     }
 
+    private void chargerCurrencyToTrack() {
+        if (currencyToTracks == null) currencyToTracks = getCurrenciesToTracks();
+    }
+
     private CurrencyToTrack getCurrencyToTrackByKey(List<CurrencyToTrack> currencyToTracks, String key) {
         return currencyToTracks.stream().filter(currencyToTrack -> currencyToTrack.getName().equals(key)).findFirst().get();
     }
@@ -83,15 +91,16 @@ public class PriceService {
         List<CurrencyToTrack> currencyToTracks = null;
         try {
 
-        File file = new ClassPathResource("currencies.json").getFile();
+            File file = new ClassPathResource("currencies.json").getFile();
 
-        String currencies = new String (Files.readAllBytes(file.toPath()), Charset.forName("UTF-8")); // if not specified, uses windows-1552 on that platform
-            Gson g =  new Gson();
-            Type listType = new TypeToken<ArrayList<CurrencyToTrack>>(){}.getType();
+
+            String currencies = new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8")); // if not specified, uses windows-1552 on that platform
+            Gson g = new Gson();
+            Type listType = new TypeToken<ArrayList<CurrencyToTrack>>() {
+            }.getType();
 
 
             currencyToTracks = g.fromJson(currencies, listType);
-
 
 
         } catch (IOException e) {
@@ -100,14 +109,26 @@ public class PriceService {
         return currencyToTracks;
     }
 
-    private void checkPrice(CurrencyToTrack currencyToTrack, double priceCurrency, boolean isDecisionChecked, Decision sell) {
+    private void checkPrice(CurrencyToTrack currencyToTrack, double priceCurrency, boolean isDecisionChecked, Decision decision) {
         if (isDecisionChecked) {
-            alertUser(priceCurrency, currencyToTrack, sell);
+            alertUser(priceCurrency, currencyToTrack, decision);
+            updateCurrencyToTrack(currencyToTrack, decision, priceCurrency);
+        }
+    }
+
+    private void updateCurrencyToTrack(CurrencyToTrack currencyToTrack, Decision decision, double priceCurrency) {
+
+        switch (decision) {
+            case BUY:
+                currencyToTrack.setMax(priceCurrency + (priceCurrency - currencyToTrack.getMax()) * 5);
+                break;
+            case SELL:
+                currencyToTrack.setMin(priceCurrency - (currencyToTrack.getMin() - priceCurrency) * 5);
+                break;
         }
     }
 
     private void alertUser(double alertPrice, CurrencyToTrack id, Decision decision) {
-        System.out.println("New price of " + id + " is " + alertPrice);
         SendMail.sendMail(alertPrice, id, decision);
     }
 }

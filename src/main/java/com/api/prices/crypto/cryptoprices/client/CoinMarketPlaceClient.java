@@ -40,7 +40,6 @@ public class CoinMarketPlaceClient {
 
         try {
             String result = makeAPICall(uri, paratmers);
-            System.out.println(result);
 
 
             Gson g = new Gson();

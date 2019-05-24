@@ -21,9 +21,6 @@ public class CryptoPricesApplication {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-	
-	@Bean
-	public SchedulingTasks task() {
-		return new SchedulingTasks();
-	}
+
+
 }

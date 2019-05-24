@@ -16,8 +16,10 @@ import java.util.Properties;
 
 @Service
 public class SendMail {
-	
-	public static void sendMail(double price, CurrencyToTrack currencyToTrack, Decision decision) {
+
+    public static final String MESSAGE_TO_SEND = "%3s  %1s  price %2s ";
+
+    public static void sendMail(double price, CurrencyToTrack currencyToTrack, Decision decision) {
         Properties props = new Properties();
         
         props.put("mail.smtp.host", "smtp.gmail.com");
@@ -28,23 +30,25 @@ public class SendMail {
 
         Session session = Session.getDefaultInstance(props,
                     new javax.mail.Authenticator() {
-                         protected PasswordAuthentication getPasswordAuthentication() 
+                         protected PasswordAuthentication getPasswordAuthentication()
                          {
-                               return new PasswordAuthentication("youssef.dahar@gmail.com", "***");
+                               return new PasswordAuthentication("youssef.dahar@gmail.com", "*****");
                          }
                     });
-        
+
         session.setDebug(true);
         try {
 
               Message message = new MimeMessage(session);
               message.setFrom(new InternetAddress("youssef.dahar@gmail.com"));
 
-              Address[] toUser = InternetAddress.parse("youssef.dahar@gmail.com,admi.mohamad@gmail.com");
-              message.setRecipients(Message.RecipientType.TO, toUser);
+             // Address[] toUser = InternetAddress.parse("youssef.dahar@gmail.com,admi.mohamad@gmail.com");
+            Address[] toUser = InternetAddress.parse("youssef.dahar@gmail.com");
+
+            message.setRecipients(Message.RecipientType.TO, toUser);
 
 
-              String text = String.format("The price of  %1s  is %2s  your have to  %3s", currencyToTrack.toString(), String.valueOf(price),decision.toString());
+              String text = String.format(MESSAGE_TO_SEND, decision.toString(),currencyToTrack.toString(), String.valueOf(price));
             message.setText(text);
             message.setSubject(text);
 
