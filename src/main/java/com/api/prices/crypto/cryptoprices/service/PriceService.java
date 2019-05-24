@@ -37,7 +37,7 @@ public class PriceService {
     private PricesRepository pricesRepository;
 
     public CurrencyInformation getInformation(String id) {
-        return CoinMarketPlaceClient.getOneCurrenciesInfo(id);
+        return pricesRestClient.getOneCurrenciesInfo(id);
     }
 
 
@@ -52,7 +52,7 @@ public class PriceService {
 
         String currencies = currencyToTracks.stream().map(currencyToTrack -> currencyToTrack.getName()).sorted().collect(Collectors.joining(","));
 
-        CurrencyInformation currencyInfo = CoinMarketPlaceClient.getOneCurrenciesInfo(currencies);
+        CurrencyInformation currencyInfo = pricesRestClient.getOneCurrenciesInfo(currencies);
 
 
         if (currencyInfo != null && currencyInfo.getData() != null) {
