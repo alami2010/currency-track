@@ -44,12 +44,12 @@ public class CoinMarketPlaceClient {
 
     public CurrencyInformation getOneCurrenciesInfo(String currencies) {
 
-
+/*
         try {
             CurrencyToTrack[] currencyToTrack = getCurrencyToTrack();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
 
         logger.info("Symbol "+currencies);

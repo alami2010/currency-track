@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @Service
 public class PriceService {
 
+    public static final int MUTIPLY_BIG_MARGE = 3;
+    public static final double MUTIPLY_SMALL_MARGE = 1.3;
     @Autowired
     private CoinMarketPlaceClient pricesRestClient;
     private static Logger logger = LogManager.getLogger(SchedulingTasks.class);
@@ -45,9 +47,12 @@ public class PriceService {
 
 
     public void initMonitoringOfPrice() {
-        System.out.println(" ===> Monitoring price <=== ");
+        logger.info(" ===> Monitoring price <=== ");
 
         chargerCurrencyToTrack();
+
+
+        TrackPriceChangeByRobot();
 
 
         String currencies = currencyToTracks.stream().map(currencyToTrack -> currencyToTrack.getName()).sorted().collect(Collectors.joining(","));
@@ -75,7 +80,14 @@ public class PriceService {
 
         }
 
+        TrackPriceChangeByRobot();
+    }
 
+    private void TrackPriceChangeByRobot() {
+        logger.info("Track");
+        Gson g = new Gson();
+        String jsonCurrencyToTrack = g.toJson(currencyToTracks);
+        logger.info(jsonCurrencyToTrack);
     }
 
     private void chargerCurrencyToTrack() {
@@ -117,13 +129,18 @@ public class PriceService {
     }
 
     private void updateCurrencyToTrack(CurrencyToTrack currencyToTrack, Decision decision, double priceCurrency) {
-
+        double marge;
         switch (decision) {
-            case BUY:
-                currencyToTrack.setMax(priceCurrency + (priceCurrency - currencyToTrack.getMax()) * 5);
-                break;
             case SELL:
-                currencyToTrack.setMin(priceCurrency - (currencyToTrack.getMin() - priceCurrency) * 5);
+                marge = priceCurrency - currencyToTrack.getMax();
+                currencyToTrack.setMax(priceCurrency + marge * MUTIPLY_BIG_MARGE);
+                currencyToTrack.setMin(currencyToTrack.getMin() + marge * MUTIPLY_SMALL_MARGE);
+                break;
+            case BUY:
+                marge = currencyToTrack.getMin() - priceCurrency;
+                currencyToTrack.setMin(priceCurrency - marge * MUTIPLY_BIG_MARGE);
+                currencyToTrack.setMax(currencyToTrack.getMax() - marge * MUTIPLY_SMALL_MARGE);
+
                 break;
         }
     }

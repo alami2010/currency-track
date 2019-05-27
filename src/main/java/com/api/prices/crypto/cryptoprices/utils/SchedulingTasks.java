@@ -4,7 +4,6 @@ import com.api.prices.crypto.cryptoprices.service.PriceService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +18,13 @@ public class SchedulingTasks {
 
     private final long SEGUNDO = 1000;
     private final long MINUTE = SEGUNDO * 60;
-    
-    @Scheduled(fixedRate = MINUTE *30)
+
+    @Scheduled(fixedRate = MINUTE * 10)
     public void reportPrice() {
 
 
-    	 priceService.initMonitoringOfPrice();
+        priceService.initMonitoringOfPrice();
 
     }
-	
+
 }
