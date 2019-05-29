@@ -32,7 +32,7 @@ public class SendMail {
                     new javax.mail.Authenticator() {
                          protected PasswordAuthentication getPasswordAuthentication()
                          {
-                               return new PasswordAuthentication("youssef.dahar@gmail.com", "*****");
+                               return new PasswordAuthentication("youssef.dahar@gmail.com", "yDahar+1992");
                          }
                     });
 
