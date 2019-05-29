@@ -1,7 +1,10 @@
 package com.api.prices.crypto.cryptoprices.service;
 
 import com.api.prices.crypto.cryptoprices.client.CoinMarketPlaceClient;
+import com.api.prices.crypto.cryptoprices.client.pojo.Currency;
 import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformation;
+import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformationStats;
+import com.api.prices.crypto.cryptoprices.client.pojo.USD;
 import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
 import com.api.prices.crypto.cryptoprices.entity.Decision;
 import com.api.prices.crypto.cryptoprices.repository.PricesRepository;
@@ -26,6 +29,10 @@ public class PriceService {
     private CurrencyToTrackService currencyToTrackService;
     @Autowired
     private CoinMarketPlaceClient pricesRestClient;
+
+    @Autowired
+    private SendMail sendMail;
+
     private static Logger logger = LogManager.getLogger(PriceService.class);
 
 
@@ -115,6 +122,58 @@ public class PriceService {
     }
 
     private void alertUser(double alertPrice, CurrencyToTrack id, Decision decision) {
-        SendMail.sendMail(alertPrice, id, decision);
+        final String MESSAGE_TO_SEND = "%3s  %1s  price %2s ";
+
+        String text = String.format(MESSAGE_TO_SEND, decision.toString(), id.toString(), String.valueOf(alertPrice));
+
+        sendMail.sendMail(text, text);
+    }
+
+
+    public void initMonitoringOfStats() {
+        logger.info(" ===> Start Monitoring Stat <=== ");
+
+        StringBuffer sb = new StringBuffer();
+
+        CurrencyInformationStats statCurrencies = pricesRestClient.getStatCurrencies();
+
+        if (statCurrencies != null && statCurrencies.getData() != null) {
+
+            statCurrencies.getData().stream().forEach(currency -> {
+
+
+                double percentChange1h = currency.getQuote().getUSD().getPercent_change_1h();
+                double percentChange24h = currency.getQuote().getUSD().getPercent_change_24h();
+                double percentChange7d = currency.getQuote().getUSD().getPercent_change_7d();
+
+                boolean isDeserveToCheckBy1H = percentChange1h < -20 ;
+                boolean isDeserveToCheckBy24H = percentChange24h < -15;
+                boolean isDeserveToCheckBy7D = percentChange7d < -10;
+
+
+
+                if ((isDeserveToCheckBy1H || isDeserveToCheckBy24H ) && isDeserveToCheckBy7D)
+                    BuildMessage(sb, currency);
+
+            });
+
+        }
+
+
+        if (sb.length() > 0) {
+
+            sendMail.sendMail("Monitoring Statistique", sb.toString());
+        }
+
+        logger.info(" ===> End Monitoring Stat <=== ");
+
+    }
+
+    private void BuildMessage(StringBuffer sb, Currency currency) {
+
+        final String MESSAGE_TO_SEND = " %1s  1h:%2s  24h:%3s  7d:%4s";
+        USD usd = currency.getQuote().getUSD();
+        String text = String.format(MESSAGE_TO_SEND, currency.getSymbol(), usd.getPercent_change_1h(), usd.getPercent_change_24h(), usd.getPercent_change_7d());
+        sb.append(text).append("\n");
     }
 }

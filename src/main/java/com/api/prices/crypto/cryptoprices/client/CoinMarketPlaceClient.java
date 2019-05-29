@@ -2,6 +2,7 @@ package com.api.prices.crypto.cryptoprices.client;
 
 
 import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformation;
+import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformationStats;
 import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
 import com.google.gson.Gson;
 import org.apache.http.HttpEntity;
@@ -33,7 +34,10 @@ import java.util.List;
 @Service
 public class CoinMarketPlaceClient {
 
+
     private static final String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest";
+    private static final String uri_stats = "https://pro-api.coinmarketcap.com/v1/exchange/listings/historical/latest?convert=USD&start=1&limit=5000";
+
     private static final String apiKey = "a3c5ac9b-1b2d-470b-8a67-a5112f71a981";
     private static final Logger logger = LogManager.getLogger(CoinMarketPlaceClient.class);
     private static final String URL_COIN_TO_TRACK = "https://ydahar.000webhostapp.com/currencies.php";
@@ -66,6 +70,38 @@ public class CoinMarketPlaceClient {
 
 
             CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
+
+
+            return currencyInformation;
+        } catch (IOException e) {
+            logger.error("Error: cannont access content - " + e.toString());
+        } catch (URISyntaxException e) {
+            logger.error("Error: Invalid URL " + e.toString());
+        }
+
+        return null;
+
+    }
+
+
+    public CurrencyInformationStats getStatCurrencies() {
+
+
+
+
+        logger.info("getStatCurrencies  ");
+
+        List<NameValuePair> paratmers = new ArrayList<>();
+
+        try {
+            String result = makeAPICall(uri_stats, paratmers);
+
+
+            Gson g = new Gson();
+
+
+
+            CurrencyInformationStats currencyInformation = g.fromJson(result, CurrencyInformationStats.class);
 
 
             return currencyInformation;
