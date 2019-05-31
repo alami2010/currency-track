@@ -18,7 +18,7 @@ import java.util.Properties;
 public class SendMail {
 
 
-    public void sendMail(String subject, String body) {
+    public void sendMail(String subject, String body,boolean isHtml) {
         try {
 
             Message message = confMail();
@@ -26,7 +26,8 @@ public class SendMail {
             setToAndFromForMail(message);
 
 
-            message.setText(body);
+            if(isHtml) message.setContent(body, "text/html");
+            else  message.setText(body);
             message.setSubject(subject);
 
             Transport.send(message);

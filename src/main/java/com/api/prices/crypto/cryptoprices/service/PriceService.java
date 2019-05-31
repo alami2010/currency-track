@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PriceService {
@@ -29,19 +30,11 @@ public class PriceService {
     private CurrencyToTrackService currencyToTrackService;
     @Autowired
     private CoinMarketPlaceClient pricesRestClient;
-
     @Autowired
     private SendMail sendMail;
-
     private static Logger logger = LogManager.getLogger(PriceService.class);
-
-
     @Autowired
     private PricesRepository pricesRepository;
-
-    public CurrencyInformation getInformation(String id) {
-        return pricesRestClient.getOneCurrenciesInfo(id);
-    }
 
 
     List<CurrencyToTrack> currencyToTracks = null;
@@ -85,7 +78,6 @@ public class PriceService {
     }
 
 
-
     private void chargerCurrencyToTrack() {
         if (currencyToTracks == null) currencyToTracks = currencyToTrackService.getCurrenciesToTracks();
     }
@@ -93,7 +85,6 @@ public class PriceService {
     private CurrencyToTrack getCurrencyToTrackByKey(List<CurrencyToTrack> currencyToTracks, String key) {
         return currencyToTracks.stream().filter(currencyToTrack -> currencyToTrack.getName().equals(key)).findFirst().get();
     }
-
 
 
     private void checkPrice(CurrencyToTrack currencyToTrack, double priceCurrency, boolean isDecisionChecked, Decision decision) {
@@ -126,54 +117,81 @@ public class PriceService {
 
         String text = String.format(MESSAGE_TO_SEND, decision.toString(), id.toString(), String.valueOf(alertPrice));
 
-        sendMail.sendMail(text, text);
+        sendMail.sendMail(text, text, false);
     }
 
 
     public void initMonitoringOfStats() {
         logger.info(" ===> Start Monitoring Stat <=== ");
 
-        StringBuffer sb = new StringBuffer();
 
         CurrencyInformationStats statCurrencies = pricesRestClient.getStatCurrencies();
 
         if (statCurrencies != null && statCurrencies.getData() != null) {
 
-            statCurrencies.getData().stream().forEach(currency -> {
+            Stream<Currency> currencyStream = statCurrencies.getData().stream()
+                    .filter(currency -> {
 
 
-                double percentChange1h = currency.getQuote().getUSD().getPercent_change_1h();
-                double percentChange24h = currency.getQuote().getUSD().getPercent_change_24h();
-                double percentChange7d = currency.getQuote().getUSD().getPercent_change_7d();
+                        double percentChange1h = currency.getQuote().getUSD().getPercent_change_1h();
+                        double percentChange24h = currency.getQuote().getUSD().getPercent_change_24h();
+                        double percentChange7d = currency.getQuote().getUSD().getPercent_change_7d();
 
-                boolean isDeserveToCheckBy1H = percentChange1h < -20 ;
-                boolean isDeserveToCheckBy24H = percentChange24h < -15;
-                boolean isDeserveToCheckBy7D = percentChange7d < -10;
+                        boolean isDeserveToCheckBy1H = percentChange1h < -20;
+                        boolean isDeserveToCheckBy24H = percentChange24h < -15;
+                        boolean isDeserveToCheckBy7D = percentChange7d < -10;
 
+                        return ((isDeserveToCheckBy1H || isDeserveToCheckBy24H) && isDeserveToCheckBy7D);
+                    })
+                    .sorted((o1, o2) -> (int) (o1.getQuote().getUSD().getPercent_change_7d() - o2.getQuote().getUSD().getPercent_change_7d()));
 
+            StringBuffer sb = generateHtmlMessage(currencyStream);
+            if (sb.length() > 0) {
 
-                if ((isDeserveToCheckBy1H || isDeserveToCheckBy24H ) && isDeserveToCheckBy7D)
-                    BuildMessage(sb, currency);
+                sendMail.sendMail("Monitoring Statistique", sb.toString(), true);
+            }
+        } else {
 
-            });
+            logger.error(" ===> End Monitoring Stat <=== " + statCurrencies.getStatus());
 
         }
 
-
-        if (sb.length() > 0) {
-
-            sendMail.sendMail("Monitoring Statistique", sb.toString());
-        }
 
         logger.info(" ===> End Monitoring Stat <=== ");
 
     }
 
-    private void BuildMessage(StringBuffer sb, Currency currency) {
+    private StringBuffer generateHtmlMessage(Stream<Currency> currencyStream) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("<html><body> <h1>This is actual message embedded in HTML tags</h1>\""
+                + "<table style='border:2px solid black'> " +
+                "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
 
-        final String MESSAGE_TO_SEND = " %1s  1h:%2s  24h:%3s  7d:%4s";
+
+        currencyStream.forEach(currency -> buildMessage(sb, currency));
+        sb.append("</table></body></html>");
+
+        return sb;
+    }
+
+    private void buildMessage(StringBuffer sb, Currency currency) {
+
         USD usd = currency.getQuote().getUSD();
-        String text = String.format(MESSAGE_TO_SEND, currency.getSymbol(), usd.getPercent_change_1h(), usd.getPercent_change_24h(), usd.getPercent_change_7d());
-        sb.append(text).append("\n");
+
+                sb.append("<tr bgcolor=\"#33CC99\">")
+                .append("<td>")
+                .append(currency.getSymbol())
+                .append("</td><td>")
+                .append(usd.getPercent_change_1h())
+                .append("</td><td>")
+                .append(usd.getPercent_change_24h())
+                .append("</td><td>")
+                .append(usd.getPercent_change_7d())
+                .append("</td><td>")
+                .append(usd.getPrice())
+                .append("</td>")
+                .append("</tr>");
+
+
     }
 }
