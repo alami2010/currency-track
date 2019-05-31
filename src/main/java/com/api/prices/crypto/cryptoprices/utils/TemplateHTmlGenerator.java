@@ -15,9 +15,11 @@ public class TemplateHTmlGenerator {
 
     public StringBuffer generateHtmlMessage(Stream<Currency> currencyStream) {
         StringBuffer sb = new StringBuffer();
-        sb.append("<html><body> <h1>This is actual message embedded in HTML tags</h1>\""
-                + "<table style='border:2px solid black'> " +
-                "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
+        sb.append("<html><body> <h1>")
+                .append(currencyStream.count())
+                .append("</h1>\""
+                        + "<table style='border:2px solid black'> " +
+                        "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
 
 
         currencyStream.forEach(currency -> buildMessage(sb, currency));

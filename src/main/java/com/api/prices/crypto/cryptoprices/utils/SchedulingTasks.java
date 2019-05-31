@@ -27,7 +27,7 @@ public class SchedulingTasks {
     }
 
 
-    @Scheduled(fixedRate = HOUR)
+    @Scheduled(fixedRate = HOUR * 6)
     public void reportStats() {
 
 

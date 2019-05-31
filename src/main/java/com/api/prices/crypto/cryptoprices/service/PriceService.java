@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,8 +41,6 @@ public class PriceService {
         logger.info(" ===> Monitoring price <=== ");
 
         chargerCurrencyToTrack();
-
-
         currencyToTrackService.TrackPriceChangeByRobot(currencyToTracks);
 
 
@@ -56,15 +55,7 @@ public class PriceService {
             currencyInfo.getData().entrySet().stream().forEach(currency -> {
 
 
-                CurrencyToTrack currencyToTrack = getCurrencyToTrackByKey(currencyToTracks, currency.getKey());
-
-                double priceCurrency = currency.getValue().getQuote().getUSD().getPrice();
-                String slug = currency.getValue().getSlug();
-
-                logger.info(currencyToTrack.toString() + " " + priceCurrency + " \t" + StringUtils.capitalize(slug));
-
-                checkPrice(currencyToTrack, priceCurrency, priceCurrency >= currencyToTrack.getMax(), Decision.SELL);
-                checkPrice(currencyToTrack, priceCurrency, priceCurrency <= currencyToTrack.getMin(), Decision.BUY);
+                checkPrice(currency);
             });
 
 
@@ -73,9 +64,25 @@ public class PriceService {
         currencyToTrackService.TrackPriceChangeByRobot(currencyToTracks);
     }
 
+    private void checkPrice(Map.Entry<String, Currency> currency) {
+        CurrencyToTrack currencyToTrack = getCurrencyToTrackByKey(currencyToTracks, currency.getKey());
+        double priceCurrency = currency.getValue().getQuote().getUSD().getPrice();
+        String slug = currency.getValue().getSlug();
+
+        checkPrice(currencyToTrack, priceCurrency, priceCurrency >= currencyToTrack.getMax(), Decision.SELL);
+        checkPrice(currencyToTrack, priceCurrency, priceCurrency <= currencyToTrack.getMin(), Decision.BUY);
+
+        if (checkIfCurrencyNeedToBeNotified(currency.getValue()))
+            sendMail.sendMail(slug + " Deserve to be analized", slug, false);
+
+
+        logger.info(currencyToTrack.toString() + " " + priceCurrency + " \t" + StringUtils.capitalize(slug));
+
+    }
+
 
     private void chargerCurrencyToTrack() {
-        if (currencyToTracks == null) currencyToTracks = currencyToTrackService.getCurrenciesToTracks();
+        if (currencyToTracks == null) currencyToTracks = pricesRestClient.getCurrencyToTrack();
     }
 
     private CurrencyToTrack getCurrencyToTrackByKey(List<CurrencyToTrack> currencyToTracks, String key) {
@@ -87,7 +94,6 @@ public class PriceService {
         if (isDecisionChecked) {
             alertUser(priceCurrency, currencyToTrack, decision);
             updateCurrencyToTrack(currencyToTrack, decision, priceCurrency);
-            currencyToTrackService.saveNewCurrenciesToTrack(currencyToTracks);
         }
     }
 
@@ -106,6 +112,9 @@ public class PriceService {
 
                 break;
         }
+
+
+        pricesRestClient.updateCurrency(currencyToTrack);
     }
 
     private void alertUser(double alertPrice, CurrencyToTrack id, Decision decision) {
@@ -126,19 +135,7 @@ public class PriceService {
         if (statCurrencies != null && statCurrencies.getData() != null) {
 
             Stream<Currency> currencyStream = statCurrencies.getData().stream()
-                    .filter(currency -> {
-
-
-                        double percentChange1h = currency.getQuote().getUSD().getPercent_change_1h();
-                        double percentChange24h = currency.getQuote().getUSD().getPercent_change_24h();
-                        double percentChange7d = currency.getQuote().getUSD().getPercent_change_7d();
-
-                        boolean isDeserveToCheckBy1H = percentChange1h < -20;
-                        boolean isDeserveToCheckBy24H = percentChange24h < -15;
-                        boolean isDeserveToCheckBy7D = percentChange7d < -10;
-
-                        return ((isDeserveToCheckBy1H || isDeserveToCheckBy24H) && isDeserveToCheckBy7D);
-                    })
+                    .filter(currency -> checkIfCurrencyNeedToBeNotified(currency))
                     .sorted((o1, o2) -> (int) (o1.getQuote().getUSD().getPercent_change_7d() - o2.getQuote().getUSD().getPercent_change_7d()));
 
             StringBuffer sb = templateHTmlGenerator.generateHtmlMessage(currencyStream);
@@ -155,6 +152,18 @@ public class PriceService {
 
         logger.info(" ===> End Monitoring Stat <=== ");
 
+    }
+
+    private boolean checkIfCurrencyNeedToBeNotified(Currency currency) {
+        double percentChange1h = currency.getQuote().getUSD().getPercent_change_1h();
+        double percentChange24h = currency.getQuote().getUSD().getPercent_change_24h();
+        double percentChange7d = currency.getQuote().getUSD().getPercent_change_7d();
+
+        boolean isDeserveToCheckBy1H = percentChange1h < -20;
+        boolean isDeserveToCheckBy24H = percentChange24h < -15;
+        boolean isDeserveToCheckBy7D = percentChange7d < -10;
+
+        return ((isDeserveToCheckBy1H || isDeserveToCheckBy24H) && isDeserveToCheckBy7D);
     }
 
 
