@@ -1,15 +1,8 @@
 package com.api.prices.crypto.cryptoprices.utils;
 
-import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
-import com.api.prices.crypto.cryptoprices.entity.Decision;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
@@ -17,25 +10,6 @@ import java.util.Properties;
 @Service
 public class SendMail {
 
-
-    public void sendMail(String subject, String body,boolean isHtml) {
-        try {
-
-            Message message = confMail();
-
-            setToAndFromForMail(message);
-
-
-            if(isHtml) message.setContent(body, "text/html");
-            else  message.setText(body);
-            message.setSubject(subject);
-
-            Transport.send(message);
-              System.out.println("Sending mail completed!!!");
-         } catch (MessagingException e) {
-              throw new RuntimeException(e);
-        }
-  }
 
     private static void setToAndFromForMail(Message message) throws MessagingException {
         message.setFrom(new InternetAddress("youssef.dahar@gmail.com"));
@@ -64,6 +38,25 @@ public class SendMail {
 
         session.setDebug(true);
         return new MimeMessage(session);
+    }
+
+    public void sendMail(String subject, String body, boolean isHtml) {
+        try {
+
+            Message message = confMail();
+
+            setToAndFromForMail(message);
+
+
+            if (isHtml) message.setContent(body, "text/html");
+            else message.setText(body);
+            message.setSubject(subject);
+
+            Transport.send(message);
+            System.out.println("Sending mail completed!!!");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

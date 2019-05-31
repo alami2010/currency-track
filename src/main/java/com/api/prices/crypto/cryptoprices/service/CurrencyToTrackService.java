@@ -22,8 +22,8 @@ import java.util.List;
 public class CurrencyToTrackService {
 
     private static Logger logger = LogManager.getLogger(CurrencyToTrackService.class);
-    private Gson gPretty = new GsonBuilder().setPrettyPrinting().create();
-    private Gson g = new Gson();
+    private Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+    private Gson gson = new Gson();
 
     public CurrencyToTrackService() {
     }
@@ -39,7 +39,7 @@ public class CurrencyToTrackService {
             Type listType = new TypeToken<ArrayList<CurrencyToTrack>>() {
             }.getType();
 
-            currencyToTracks = g.fromJson(currencies, listType);
+            currencyToTracks = gson.fromJson(currencies, listType);
 
 
         } catch (IOException e) {
@@ -51,7 +51,7 @@ public class CurrencyToTrackService {
 
     void TrackPriceChangeByRobot(List<CurrencyToTrack> currencyToTracks) {
         logger.info("Track");
-        String jsonCurrencyToTrack = g.toJson(currencyToTracks);
+        String jsonCurrencyToTrack = gson.toJson(currencyToTracks);
         logger.info(jsonCurrencyToTrack);
 
     }
@@ -63,7 +63,7 @@ public class CurrencyToTrackService {
             File file = new ClassPathResource("currencies.json").getFile();
 
             PrintWriter out = new PrintWriter(file);
-            String jsonCurrencyToTrack = gPretty.toJson(currencyToTracks);
+            String jsonCurrencyToTrack = gsonPretty.toJson(currencyToTracks);
             out.println(jsonCurrencyToTrack);
             out.close();
 

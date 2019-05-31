@@ -18,15 +18,10 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,98 +38,7 @@ public class CoinMarketPlaceClient {
     private static final String URL_COIN_TO_TRACK = "https://ydahar.000webhostapp.com/currencies.php";
 
     @Autowired
-    private  RestTemplate restTemplate;
-
-
-    public CurrencyInformation getOneCurrenciesInfo(String currencies) {
-
-/*
-        try {
-            CurrencyToTrack[] currencyToTrack = getCurrencyToTrack();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-
-        logger.info("Symbol "+currencies);
-
-        List<NameValuePair> paratmers = new ArrayList<>();
-        paratmers.add(new BasicNameValuePair("symbol", currencies));
-
-        try {
-            String result = makeAPICall(uri, paratmers);
-
-
-            Gson g = new Gson();
-
-
-
-            CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
-
-
-            return currencyInformation;
-        } catch (IOException e) {
-            logger.error("Error: cannont access content - " + e.toString());
-        } catch (URISyntaxException e) {
-            logger.error("Error: Invalid URL " + e.toString());
-        }
-
-        return null;
-
-    }
-
-
-    public CurrencyInformationStats getStatCurrencies() {
-
-
-
-
-        logger.info("getStatCurrencies  ");
-
-        List<NameValuePair> paratmers = new ArrayList<>();
-
-        try {
-            String result = makeAPICall(uri_stats, paratmers);
-
-
-            Gson g = new Gson();
-
-
-
-            CurrencyInformationStats currencyInformation = g.fromJson(result, CurrencyInformationStats.class);
-
-
-            return currencyInformation;
-        } catch (IOException e) {
-            logger.error("Error: cannont access content - " + e.toString());
-        } catch (URISyntaxException e) {
-            logger.error("Error: Invalid URL " + e.toString());
-        }
-
-        return null;
-
-    }
-
-    private  CurrencyToTrack[] getCurrencyToTrack() throws IOException {
-
-
-
-
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet request = new HttpGet(URL_COIN_TO_TRACK);
-
-        request.setHeader(HttpHeaders.ACCEPT, "application/json");
-
-        CloseableHttpResponse response = client.execute(request);
-
-        System.out.println(response.getStatusLine());
-        HttpEntity entity = response.getEntity();
-        String response_content = EntityUtils.toString(entity);
-
-
-        return  null;
-    }
-
+    private RestTemplate restTemplate;
 
     public static String makeAPICall(String uri, List<NameValuePair> parameters)
             throws URISyntaxException, IOException {
@@ -161,6 +65,88 @@ public class CoinMarketPlaceClient {
         }
 
         return response_content;
+    }
+
+    public CurrencyInformation getOneCurrenciesInfo(String currencies) {
+
+/*
+        try {
+            CurrencyToTrack[] currencyToTrack = getCurrencyToTrack();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
+        logger.info("Symbol " + currencies);
+
+        List<NameValuePair> paratmers = new ArrayList<>();
+        paratmers.add(new BasicNameValuePair("symbol", currencies));
+
+        try {
+            String result = makeAPICall(uri, paratmers);
+
+
+            Gson g = new Gson();
+
+
+            CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
+
+
+            return currencyInformation;
+        } catch (IOException e) {
+            logger.error("Error: cannont access content - " + e.toString());
+        } catch (URISyntaxException e) {
+            logger.error("Error: Invalid URL " + e.toString());
+        }
+
+        return null;
+
+    }
+
+    public CurrencyInformationStats getStatCurrencies() {
+
+
+        logger.info("getStatCurrencies  ");
+
+        List<NameValuePair> paratmers = new ArrayList<>();
+
+        try {
+            String result = makeAPICall(uri_stats, paratmers);
+
+
+            Gson g = new Gson();
+
+
+            CurrencyInformationStats currencyInformation = g.fromJson(result, CurrencyInformationStats.class);
+
+
+            return currencyInformation;
+        } catch (IOException e) {
+            logger.error("Error: cannont access content - " + e.toString());
+        } catch (URISyntaxException e) {
+            logger.error("Error: Invalid URL " + e.toString());
+        }
+
+        return null;
+
+    }
+
+    private CurrencyToTrack[] getCurrencyToTrack() throws IOException {
+
+
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet request = new HttpGet(URL_COIN_TO_TRACK);
+
+        request.setHeader(HttpHeaders.ACCEPT, "application/json");
+
+        CloseableHttpResponse response = client.execute(request);
+
+        System.out.println(response.getStatusLine());
+        HttpEntity entity = response.getEntity();
+        String response_content = EntityUtils.toString(entity);
+
+
+        return null;
     }
 
 }

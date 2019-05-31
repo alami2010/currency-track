@@ -11,14 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class SchedulingTasks {
 
-    @Autowired
-    private PriceService priceService;
-
     private static Logger logger = LogManager.getLogger(SchedulingTasks.class);
-
     private final long SEGUNDO = 1000;
     private final long MINUTE = SEGUNDO * 60;
     private final long HOUR = MINUTE * 60;
+    @Autowired
+    private PriceService priceService;
 
     @Scheduled(fixedRate = MINUTE * 10)
     public void reportPrice() {
@@ -27,8 +25,6 @@ public class SchedulingTasks {
         priceService.initMonitoringOfPrice();
 
     }
-
-
 
 
     @Scheduled(fixedRate = HOUR)

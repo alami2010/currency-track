@@ -37,7 +37,7 @@ public class CurrencyToTrack {
 
     @Override
     public String toString() {
-        return  this.name+ "  " +
+        return this.name + "  " +
                 "min=" + min +
                 ", max=" + max +
                 ", ";

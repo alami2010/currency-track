@@ -4,11 +4,11 @@ import com.api.prices.crypto.cryptoprices.client.CoinMarketPlaceClient;
 import com.api.prices.crypto.cryptoprices.client.pojo.Currency;
 import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformation;
 import com.api.prices.crypto.cryptoprices.client.pojo.CurrencyInformationStats;
-import com.api.prices.crypto.cryptoprices.client.pojo.USD;
 import com.api.prices.crypto.cryptoprices.entity.CurrencyToTrack;
 import com.api.prices.crypto.cryptoprices.entity.Decision;
 import com.api.prices.crypto.cryptoprices.repository.PricesRepository;
 import com.api.prices.crypto.cryptoprices.utils.SendMail;
+import com.api.prices.crypto.cryptoprices.utils.TemplateHTmlGenerator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,21 +24,17 @@ public class PriceService {
 
     public static final int MUTIPLY_BIG_MARGE = 3;
     public static final double MUTIPLY_SMALL_MARGE = 1.3;
-
-
+    private static Logger logger = LogManager.getLogger(PriceService.class);
+    private final TemplateHTmlGenerator templateHTmlGenerator = new TemplateHTmlGenerator(this);
+    List<CurrencyToTrack> currencyToTracks = null;
     @Autowired
     private CurrencyToTrackService currencyToTrackService;
     @Autowired
     private CoinMarketPlaceClient pricesRestClient;
     @Autowired
     private SendMail sendMail;
-    private static Logger logger = LogManager.getLogger(PriceService.class);
     @Autowired
     private PricesRepository pricesRepository;
-
-
-    List<CurrencyToTrack> currencyToTracks = null;
-
 
     public void initMonitoringOfPrice() {
         logger.info(" ===> Monitoring price <=== ");
@@ -145,7 +141,7 @@ public class PriceService {
                     })
                     .sorted((o1, o2) -> (int) (o1.getQuote().getUSD().getPercent_change_7d() - o2.getQuote().getUSD().getPercent_change_7d()));
 
-            StringBuffer sb = generateHtmlMessage(currencyStream);
+            StringBuffer sb = templateHTmlGenerator.generateHtmlMessage(currencyStream);
             if (sb.length() > 0) {
 
                 sendMail.sendMail("Monitoring Statistique", sb.toString(), true);
@@ -161,37 +157,5 @@ public class PriceService {
 
     }
 
-    private StringBuffer generateHtmlMessage(Stream<Currency> currencyStream) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<html><body> <h1>This is actual message embedded in HTML tags</h1>\""
-                + "<table style='border:2px solid black'> " +
-                "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
 
-
-        currencyStream.forEach(currency -> buildMessage(sb, currency));
-        sb.append("</table></body></html>");
-
-        return sb;
-    }
-
-    private void buildMessage(StringBuffer sb, Currency currency) {
-
-        USD usd = currency.getQuote().getUSD();
-
-                sb.append("<tr bgcolor=\"#33CC99\">")
-                .append("<td>")
-                .append(currency.getSymbol())
-                .append("</td><td>")
-                .append(usd.getPercent_change_1h())
-                .append("</td><td>")
-                .append(usd.getPercent_change_24h())
-                .append("</td><td>")
-                .append(usd.getPercent_change_7d())
-                .append("</td><td>")
-                .append(usd.getPrice())
-                .append("</td>")
-                .append("</tr>");
-
-
-    }
 }

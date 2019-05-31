@@ -1,14 +1,13 @@
 package com.api.prices.crypto.cryptoprices.client.pojo;
 
 import java.util.List;
-import java.util.Map;
 
 public class CurrencyInformationStats {
     private List<Currency> data;
 
     private Status status;
 
-    public List< Currency> getData() {
+    public List<Currency> getData() {
         return data;
     }
 
