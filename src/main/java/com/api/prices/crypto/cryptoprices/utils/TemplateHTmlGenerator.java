@@ -4,6 +4,8 @@ import com.api.prices.crypto.cryptoprices.client.pojo.Currency;
 import com.api.prices.crypto.cryptoprices.client.pojo.USD;
 import com.api.prices.crypto.cryptoprices.service.PriceService;
 
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class TemplateHTmlGenerator {
@@ -13,19 +15,31 @@ public class TemplateHTmlGenerator {
         this.priceService = priceService;
     }
 
-    public StringBuffer generateHtmlMessage(Stream<Currency> currencyStream) {
+    public StringBuffer generateHtmlMessage(Stream<Currency> currencyStream, Set<Currency> currencies) {
+
+
         StringBuffer sb = new StringBuffer();
-        sb.append("<html><body> <h1>")
-                .append(currencyStream.count())
-                .append("</h1>\""
-                        + "<table style='border:2px solid black'> " +
-                        "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
+
+        Supplier<Stream<Currency>> streamSupplier = () -> currencyStream;
+
+        sb.append("<html><body> <h1>") .append("</h1>\"");
+
+        generateTableFromListCyrencies(sb, currencies.stream(),"Currencies to Analyse");
+
+        generateTableFromListCyrencies(sb, streamSupplier.get(),"Stats Monitoring");
 
 
-        currencyStream.forEach(currency -> buildMessage(sb, currency));
-        sb.append("</table></body></html>");
+        sb.append("</body></html>");
 
         return sb;
+    }
+
+    private void generateTableFromListCyrencies(StringBuffer sb, Stream<Currency> streamCurriencies, String tableTitle) {
+        sb.append("<h1>").append(tableTitle).append("<h1>");
+        sb.append("<table style='border:2px solid black'> " +
+                "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
+        streamCurriencies.forEach(currency -> buildMessage(sb, currency));
+        sb.append("</table>");
     }
 
 
@@ -47,7 +61,12 @@ public class TemplateHTmlGenerator {
                 .append("</td>")
                 .append("</tr>");
 
+  
+
 
     }
+
+
+
 
 }

@@ -1,5 +1,7 @@
 package com.api.prices.crypto.cryptoprices.client.pojo;
 
+import java.util.Objects;
+
 public class Currency {
 
     private String symbol;
@@ -129,4 +131,16 @@ public class Currency {
         return "Currency [symbol = " + symbol + ", circulating_supply = " + circulating_supply + ", last_updated = " + last_updated + ", total_supply = " + total_supply + ", cmc_rank = " + cmc_rank + ", tags = " + tags + ", date_added = " + date_added + ", quote = " + quote + ", num_market_pairs = " + num_market_pairs + ", name = " + name + ", max_supply = " + max_supply + ", id = " + id + ", slug = " + slug + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Currency currency = (Currency) o;
+        return Objects.equals(symbol, currency.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(symbol);
+    }
 }

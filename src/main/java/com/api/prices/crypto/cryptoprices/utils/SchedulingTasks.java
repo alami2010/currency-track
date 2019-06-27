@@ -18,7 +18,7 @@ public class SchedulingTasks {
     @Autowired
     private PriceService priceService;
 
-    @Scheduled(fixedRate = MINUTE * 10)
+    @Scheduled(fixedRate = MINUTE * 5)
     public void reportPrice() {
 
 

@@ -15,15 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class PriceService {
 
-    public static final int MUTIPLY_BIG_MARGE = 3;
+    public static final int MULTIPLY_BIG_MARGE = 3;
     public static final double MUTIPLY_SMALL_MARGE = 1.3;
     private static Logger logger = LogManager.getLogger(PriceService.class);
     private final TemplateHTmlGenerator templateHTmlGenerator = new TemplateHTmlGenerator(this);
@@ -36,6 +35,11 @@ public class PriceService {
     private SendMail sendMail;
     @Autowired
     private PricesRepository pricesRepository;
+
+    private Set<Currency> currenciesToAnalyse = new HashSet<>();
+
+
+
 
     public void initMonitoringOfPrice() {
         logger.info(" ===> Monitoring price <=== ");
@@ -73,7 +77,8 @@ public class PriceService {
         checkPrice(currencyToTrack, priceCurrency, priceCurrency <= currencyToTrack.getMin(), Decision.BUY);
 
         if (checkIfCurrencyNeedToBeNotified(currency.getValue()))
-            sendMail.sendMail(slug + " Deserve to be analized", slug, false);
+            currenciesToAnalyse.add(currency.getValue());
+
 
 
         logger.info(currencyToTrack.toString() + " " + priceCurrency + " \t" + StringUtils.capitalize(slug));
@@ -102,12 +107,12 @@ public class PriceService {
         switch (decision) {
             case SELL:
                 marge = priceCurrency - currencyToTrack.getMax();
-                currencyToTrack.setMax(priceCurrency + marge * MUTIPLY_BIG_MARGE);
+                currencyToTrack.setMax(priceCurrency + marge * MULTIPLY_BIG_MARGE);
                 currencyToTrack.setMin(currencyToTrack.getMin() + marge * MUTIPLY_SMALL_MARGE);
                 break;
             case BUY:
                 marge = currencyToTrack.getMin() - priceCurrency;
-                currencyToTrack.setMin(priceCurrency - marge * MUTIPLY_BIG_MARGE);
+                currencyToTrack.setMin(priceCurrency - marge * MULTIPLY_BIG_MARGE);
                 currencyToTrack.setMax(currencyToTrack.getMax() - marge * MUTIPLY_SMALL_MARGE);
 
                 break;
@@ -138,20 +143,15 @@ public class PriceService {
                     .filter(currency -> checkIfCurrencyNeedToBeNotified(currency))
                     .sorted((o1, o2) -> (int) (o1.getQuote().getUSD().getPercent_change_7d() - o2.getQuote().getUSD().getPercent_change_7d()));
 
-            StringBuffer sb = templateHTmlGenerator.generateHtmlMessage(currencyStream);
+            StringBuffer sb = templateHTmlGenerator.generateHtmlMessage(currencyStream, currenciesToAnalyse);
             if (sb.length() > 0) {
 
                 sendMail.sendMail("Monitoring Statistique", sb.toString(), true);
             }
         } else {
-
             logger.error(" ===> End Monitoring Stat <=== " + statCurrencies.getStatus());
-
         }
-
-
         logger.info(" ===> End Monitoring Stat <=== ");
-
     }
 
     private boolean checkIfCurrencyNeedToBeNotified(Currency currency) {

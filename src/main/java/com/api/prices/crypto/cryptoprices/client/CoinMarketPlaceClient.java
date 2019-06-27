@@ -35,7 +35,13 @@ public class CoinMarketPlaceClient {
     private static final String uri = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest";
     private static final String uri_stats = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?convert=USD&start=1&limit=5000";
 
-    private static final String apiKey = "a3c5ac9b-1b2d-470b-8a67-a5112f71a981";
+    private static final String API_KEY = "a3c5ac9b-1b2d-470b-8a67-a5112f71a981";
+    private static final String API_KEY_SECOND = "b5ac83f7-ff05-4b81-85b2-682f49557114";
+
+
+    private static final String[] API_KEYS = {API_KEY, API_KEY_SECOND};
+    private static int indexApiKeys = 0;
+
     private static final Logger logger = LogManager.getLogger(CoinMarketPlaceClient.class);
     private static final String URL_COIN_TO_TRACK = "http://www.ydahar.com/currencies/currencies.php";
     private static final String URL_COIN_TO_TRACK_UPDATE = "http://www.ydahar.com/currencies/server.php";
@@ -65,7 +71,7 @@ public class CoinMarketPlaceClient {
         }
 
         request.setHeader(HttpHeaders.ACCEPT, "application/json");
-        request.addHeader("X-CMC_PRO_API_KEY", apiKey);
+        request.addHeader("X-CMC_PRO_API_KEY", API_KEYS[indexApiKeys]);
 
         CloseableHttpResponse response = client.execute(request);
 
@@ -99,6 +105,7 @@ public class CoinMarketPlaceClient {
             CurrencyInformation currencyInformation = g.fromJson(result, CurrencyInformation.class);
 
 
+
             return currencyInformation;
         } catch (IOException e) {
             logger.error("Error: cannont access content - " + e.toString());
@@ -109,6 +116,20 @@ public class CoinMarketPlaceClient {
         return null;
 
     }
+
+    private void majApiKeyIfNeeded(CurrencyInformation currencyInformation) {
+        if (currencyInformation.getData() == null) {
+            indexApiKeys = (indexApiKeys + 1) % API_KEY.length();
+        }
+    }
+
+
+    private void majApiKeyIfNeeded(CurrencyInformationStats currencyInformation) {
+        if (currencyInformation.getData() == null) {
+            indexApiKeys = (indexApiKeys + 1) % API_KEY.length();
+        }
+    }
+
 
     public CurrencyInformationStats getStatCurrencies() {
         logger.info("getStatCurrencies  ");
@@ -120,6 +141,7 @@ public class CoinMarketPlaceClient {
 
             Gson g = new Gson();
             CurrencyInformationStats currencyInformation = g.fromJson(result, CurrencyInformationStats.class);
+            majApiKeyIfNeeded(currencyInformation);
             return currencyInformation;
         } catch (IOException e) {
             logger.error("Error: cannont access content - " + e.toString());
@@ -128,6 +150,8 @@ public class CoinMarketPlaceClient {
         }
         return null;
     }
+
+
 
 
     public void updateCurrency(CurrencyToTrack currencyToTrack) {
