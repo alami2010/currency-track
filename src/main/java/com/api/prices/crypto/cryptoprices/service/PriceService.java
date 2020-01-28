@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.api.prices.crypto.cryptoprices.client.CoinMarketPlaceClient.BINANCE_SYLMBOL;
+
 @Service
 public class PriceService {
 
@@ -58,8 +60,8 @@ public class PriceService {
 
             currencyInfo.getData().entrySet().stream().forEach(currency -> {
 
+                    checkPrice(currency);
 
-                checkPrice(currency);
             });
 
 
@@ -140,6 +142,7 @@ public class PriceService {
         if (statCurrencies != null && statCurrencies.getData() != null) {
 
             Stream<Currency> currencyStream = statCurrencies.getData().stream()
+                    .filter(currency -> checkIfBrokerSupportCurrency(currency))
                     .filter(currency -> checkIfCurrencyNeedToBeNotified(currency))
                     .sorted((o1, o2) -> (int) (o1.getQuote().getUSD().getPercent_change_7d() - o2.getQuote().getUSD().getPercent_change_7d()));
 
@@ -152,6 +155,10 @@ public class PriceService {
             logger.error(" ===> End Monitoring Stat <=== " + statCurrencies.getStatus());
         }
         logger.info(" ===> End Monitoring Stat <=== ");
+    }
+
+    private boolean checkIfBrokerSupportCurrency(Currency currency) {
+        return BINANCE_SYLMBOL.contains(currency.getSymbol()) ;
     }
 
     private boolean checkIfCurrencyNeedToBeNotified(Currency currency) {
