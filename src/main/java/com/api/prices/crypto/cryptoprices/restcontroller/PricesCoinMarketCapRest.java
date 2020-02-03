@@ -6,19 +6,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/query/prices/crypto")
+@RequestMapping("/")
 public class PricesCoinMarketCapRest {
 
     @Autowired
     private PriceService priceService;
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = "alert")
     public ResponseEntity<?> getPrices(@PathVariable String id) {
-        //return ResponseEntity.ok(priceService.getInformation(id).getBody());
+        priceService.alterCurrentCurrency();
         return null;
     }
 
-    @PostMapping(value = "alert/{id}")
+    @PostMapping(value = "alertx/{id}")
     public ResponseEntity<?> enableAlertPrices(@PathVariable String id, @RequestParam Double valueAlert, @RequestParam Boolean enableDisable) {
         //return ResponseEntity.ok(priceService.enableDisableAlert(id, 20.00, enableDisable));
         return null;

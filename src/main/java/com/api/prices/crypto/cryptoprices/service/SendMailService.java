@@ -1,4 +1,4 @@
-package com.api.prices.crypto.cryptoprices.utils;
+package com.api.prices.crypto.cryptoprices.service;
 
 import org.springframework.stereotype.Service;
 
@@ -8,7 +8,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 @Service
-public class SendMail {
+public class SendMailService {
 
 
     private static void setToAndFromForMail(Message message) throws MessagingException {

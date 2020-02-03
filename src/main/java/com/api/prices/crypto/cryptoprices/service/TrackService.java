@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class CurrencyToTrackService {
+public class TrackService {
 
-    private static Logger logger = LogManager.getLogger(CurrencyToTrackService.class);
+    private static Logger logger = LogManager.getLogger(TrackService.class);
     private Gson gson = new Gson();
 
-    public CurrencyToTrackService() {
+    public TrackService() {
     }
 
 
-    void TrackPriceChangeByRobot(List<CurrencyToTrack> currencyToTracks) {
+    void trackPriceChangeByRobot(List<CurrencyToTrack> currencyToTracks) {
         logger.info("Track");
         String jsonCurrencyToTrack = gson.toJson(currencyToTracks);
         logger.info(jsonCurrencyToTrack);

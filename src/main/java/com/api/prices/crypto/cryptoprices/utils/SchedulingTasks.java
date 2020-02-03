@@ -1,5 +1,6 @@
 package com.api.prices.crypto.cryptoprices.utils;
 
+import com.api.prices.crypto.cryptoprices.service.AnalyseService;
 import com.api.prices.crypto.cryptoprices.service.PriceService;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -17,6 +18,8 @@ public class SchedulingTasks {
     private final long HOUR = MINUTE * 60;
     @Autowired
     private PriceService priceService;
+    @Autowired
+    private AnalyseService analyseService;
 
     @Scheduled(fixedRate = MINUTE * 5)
     public void reportPrice() {
@@ -26,12 +29,12 @@ public class SchedulingTasks {
 
     }
 
-
+    @Scheduled(cron = "0 0 12 * * ?")
     @Scheduled(fixedRate = HOUR * 6)
     public void reportStats() {
 
 
-        priceService.initMonitoringOfStats();
+        analyseService.initMonitoringOfStats();
 
     }
 

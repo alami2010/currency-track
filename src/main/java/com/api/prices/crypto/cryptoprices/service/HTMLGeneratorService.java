@@ -1,32 +1,35 @@
-package com.api.prices.crypto.cryptoprices.utils;
+package com.api.prices.crypto.cryptoprices.service;
 
 import com.api.prices.crypto.cryptoprices.client.pojo.Currency;
 import com.api.prices.crypto.cryptoprices.client.pojo.USD;
 import com.api.prices.crypto.cryptoprices.service.PriceService;
+import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
 
-public class TemplateHTmlGenerator {
+@Service
+public class HTMLGeneratorService {
     private final PriceService priceService;
 
-    public TemplateHTmlGenerator(PriceService priceService) {
+    public HTMLGeneratorService(PriceService priceService) {
         this.priceService = priceService;
     }
 
-    public StringBuffer generateHtmlMessage(Stream<Currency> currencyStream, Set<Currency> currencies) {
-
+    public StringBuffer generateHtmlMessage(String title,List<Currency> ...currencyStream) {
 
         StringBuffer sb = new StringBuffer();
+        sb.append("<html><body> ") ;
 
-        Supplier<Stream<Currency>> streamSupplier = () -> currencyStream;
+                Arrays.stream(currencyStream).forEach(currencies ->
 
-        sb.append("<html><body> <h1>") .append("</h1>\"");
 
-        generateTableFromListCyrencies(sb, currencies.stream(),"Currencies to Analyse");
+                generateTableFromListCyrencies(sb, currencies,title)
 
-        generateTableFromListCyrencies(sb, streamSupplier.get(),"Stats Monitoring");
+
+                );
+
+
 
 
         sb.append("</body></html>");
@@ -34,11 +37,11 @@ public class TemplateHTmlGenerator {
         return sb;
     }
 
-    private void generateTableFromListCyrencies(StringBuffer sb, Stream<Currency> streamCurriencies, String tableTitle) {
-        sb.append("<h1>").append(tableTitle).append("<h1>");
-        sb.append("<table style='border:2px solid black'> " +
+    private void generateTableFromListCyrencies(StringBuffer sb, List<Currency> currencies, String tableTitle) {
+        sb.append("<h4>").append(tableTitle).append("<h4>");
+        sb.append("<table   style='border:1px solid black'> " +
                 "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
-        streamCurriencies.forEach(currency -> buildMessage(sb, currency));
+        currencies.forEach(currency -> buildMessage(sb, currency));
         sb.append("</table>");
     }
 
