@@ -29,7 +29,6 @@ public class SchedulingTasks {
 
     }
 
-    @Scheduled(cron = "0 0 12 * * ?")
     @Scheduled(fixedRate = HOUR * 6)
     public void reportStats() {
 

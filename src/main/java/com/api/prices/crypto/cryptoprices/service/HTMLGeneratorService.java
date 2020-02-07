@@ -2,52 +2,46 @@ package com.api.prices.crypto.cryptoprices.service;
 
 import com.api.prices.crypto.cryptoprices.client.pojo.Currency;
 import com.api.prices.crypto.cryptoprices.client.pojo.USD;
-import com.api.prices.crypto.cryptoprices.service.PriceService;
+import com.api.prices.crypto.cryptoprices.entity.TableHtml;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class HTMLGeneratorService {
-    private final PriceService priceService;
 
-    public HTMLGeneratorService(PriceService priceService) {
-        this.priceService = priceService;
-    }
 
-    public StringBuffer generateHtmlMessage(String title,List<Currency> ...currencyStream) {
+    public StringBuffer generateHtmlMessage(List<TableHtml> tableHtmls) {
 
         StringBuffer sb = new StringBuffer();
-        sb.append("<html><body> ") ;
+        sb.append("<html><body> ");
 
-                Arrays.stream(currencyStream).forEach(currencies ->
+        String tables = tableHtmls.stream().map(HTMLGeneratorService::generateTableFromListCyrencies).collect(Collectors.joining());
 
-
-                generateTableFromListCyrencies(sb, currencies,title)
-
-
-                );
-
-
-
-
+        sb.append(tables);
         sb.append("</body></html>");
 
         return sb;
     }
 
-    private void generateTableFromListCyrencies(StringBuffer sb, List<Currency> currencies, String tableTitle) {
-        sb.append("<h4>").append(tableTitle).append("<h4>");
+    private static StringBuffer generateTableFromListCyrencies(TableHtml tableHtmls) {
+
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("<h4>").append(tableHtmls.getTitle()).append("<h4>");
         sb.append("<table   style='border:1px solid black'> " +
                 "<tr><td>ID</td><td>1h</td><td>24h</td><td>7d</td><td>Price</td></tr>");
-        currencies.forEach(currency -> buildMessage(sb, currency));
+        String trs = tableHtmls.getCurrencies().stream().map(HTMLGeneratorService::buildMessage).collect(Collectors.joining());
+        sb.append(trs);
         sb.append("</table>");
+        return sb;
     }
 
 
-    private void buildMessage(StringBuffer sb, Currency currency) {
-
+    private static StringBuffer buildMessage(Currency currency) {
+        StringBuffer sb = new StringBuffer();
         USD usd = currency.getQuote().getUSD();
 
         sb.append("<tr bgcolor=\"#33CC99\">")
@@ -64,12 +58,8 @@ public class HTMLGeneratorService {
                 .append("</td>")
                 .append("</tr>");
 
-  
-
-
+        return sb;
     }
-
-
 
 
 }

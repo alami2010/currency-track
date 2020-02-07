@@ -32,23 +32,6 @@ public class PriceService {
 
 
 
-
-    public void alterCurrentCurrency() {
-        logger.info(" ===> Monitoring price <=== ");
-
-        chargerCurrencyToTrack();
-        currencyTrackService.trackPriceChangeByRobot(currencyToTracks);
-        String currencies = currencyToTracks.stream().map(currencyToTrack -> currencyToTrack.getName()).sorted().collect(Collectors.joining(","));
-        CurrencyInformation currencyInfo = pricesRestClient.getOneCurrenciesInfo(currencies);
-        if (currencyInfo != null && currencyInfo.getData() != null) {
-            List<Currency> currentCurrencies = currencyInfo.getData().values().stream().collect(Collectors.toList());
-            alertService.alert("current currencie",currentCurrencies);
-        }
-        currencyTrackService.trackPriceChangeByRobot(currencyToTracks);
-    }
-
-
-
     public void initMonitoringOfPrice() {
         logger.info(" ===> Monitoring price <=== ");
 
@@ -58,7 +41,7 @@ public class PriceService {
         CurrencyInformation currencyInfo = pricesRestClient.getOneCurrenciesInfo(currencies);
         if (currencyInfo != null && currencyInfo.getData() != null) {
             currencyInfo.getData().entrySet().stream().forEach(currency -> {
-                    checkPrice(currency);
+                checkPrice(currency);
             });
         }
         currencyTrackService.trackPriceChangeByRobot(currencyToTracks);
@@ -72,7 +55,7 @@ public class PriceService {
         checkPrice(currencyToTrack, priceCurrency, priceCurrency >= currencyToTrack.getMax(), Decision.SELL);
         checkPrice(currencyToTrack, priceCurrency, priceCurrency <= currencyToTrack.getMin(), Decision.BUY);
 
-        logger.info(currencyToTrack.toString() + "\t" + priceCurrency + "\t" + StringUtils.capitalize(slug)+"\t\t\t"+ currency.getValue().getQuote().getUSD().getPercent_change_1h()+"\t"+ currency.getValue().getQuote().getUSD().getPercent_change_24h());
+        logger.info(currencyToTrack.toString() + "\t" + priceCurrency + "\t" + StringUtils.capitalize(slug) + "\t\t\t" + currency.getValue().getQuote().getUSD().getPercent_change_1h() + "\t" + currency.getValue().getQuote().getUSD().getPercent_change_24h());
 
     }
 
@@ -112,13 +95,6 @@ public class PriceService {
 
         pricesRestClient.updateCurrency(currencyToTrack);
     }
-
-
-
-
-
-
-
 
 
 }
