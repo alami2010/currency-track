@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,10 @@ public class CoinMarketPlaceClient {
         String response_content = "";
 
         URIBuilder query = new URIBuilder(uri);
-        query.addParameters(parameters);
+
+       if(parameters != null){
+           query.addParameters(parameters);
+       }
 
         CloseableHttpClient client = HttpClients.createDefault();
 
@@ -86,7 +90,6 @@ public class CoinMarketPlaceClient {
         CloseableHttpResponse response = client.execute(request);
 
         try {
-            System.out.println(response.getStatusLine());
             HttpEntity entity = response.getEntity();
             response_content = EntityUtils.toString(entity);
             EntityUtils.consume(entity);
@@ -203,5 +206,21 @@ public class CoinMarketPlaceClient {
 
         return null;
     }
+
+
+    public String getJsonFromURL(String url) throws URISyntaxException, IOException {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
+        URI uri = new URIBuilder(ALPHA_VANTAGE_URL+url)
+                .build();
+        HttpGet httpget = new HttpGet(uri);
+        CloseableHttpResponse response = httpclient.execute(httpget);
+        System.out.println(response.getStatusLine());
+        HttpEntity entity = response.getEntity();
+        String response_content = EntityUtils.toString(entity);
+        System.out.println(response_content);
+        return  response_content;
+    }
+    private final static String ALPHA_VANTAGE_URL = "https://www.alphavantage.co/query?";
 
 }
