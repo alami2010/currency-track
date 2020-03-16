@@ -145,15 +145,7 @@ public class AlphaVantageClient implements IAlphaVantageClient {
             throws IOException {
         queryParameters += "&datatype=" + DataType.JSON;
         queryParameters += "&apikey=" + configuration.getApiKey();
-        try {
-
-
-            String jsonFromURL = coinMarketPlaceClient.getJsonFromURL(queryParameters);
-            return JsonParser
-                    .toObject(coinMarketPlaceClient.makeAPICall(queryParameters,null,null), resultObject);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return JsonParser
+                .toObject(Request.sendRequest(queryParameters), resultObject);
     }
 }
